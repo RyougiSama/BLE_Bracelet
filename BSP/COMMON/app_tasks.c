@@ -19,13 +19,6 @@
 
 #include <stdio.h>
 
-#include "gpio.h"
-#include "key.h"
-#include "laser_shot_common.h"
-#include "oled_user.h"
-#include "tim.h"
-#include "uart_user.h"
-
 /* 任务函数实现 */
 #if 0
 /**
@@ -55,7 +48,7 @@ static void Task_OLEDDisplay(void)
 }
 #endif
 
-#if 1
+#if 0
 /**
  * @brief 中断执行UART数据处理
  */
@@ -67,24 +60,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     }
 }
 
-/**
- * @brief 云台追踪控制任务
- */
-static void Task_TrackControl(void)
-{
-    // 执行Q2或Q3任务
-    if (g_task_basic_q2_with_zdt_running) {
-        Task_BasicQ2_WithZDT_Execute();
-    }
-    else if (Laser_TrackAimPoint_IsRunning()) {
-        // 执行激光追踪任务
-        Laser_TrackAimPoint();
-    } 
-    else if (Task_Q3_Key_IsRunning()) {
-        // 执行Q3键盘任务（S5/S6/S7/S8通用）
-        Task_Q3_Key_Execute();
-    }
-}
 #endif
 
 #if 0
@@ -115,10 +90,8 @@ void AppTasks_Init(void)
     /* 添加任务到调度器 */
     /* 参数：任务函数, 执行周期(ms), 优先级, 任务名称 */
     // TaskScheduler_AddTask(Task_UartProcess, 10, TASK_PRIORITY_HIGH, "UART_Task");
-    TaskScheduler_AddTask(Key_Proc, 20, TASK_PRIORITY_NORMAL, "Key_Task");
-    // TaskScheduler_AddTask(Task_ServoCtrl, 20, TASK_PRIORITY_NORMAL, "Servo_Task");
+    // TaskScheduler_AddTask(Key_Proc, 20, TASK_PRIORITY_NORMAL, "Key_Task");
     // TaskScheduler_AddTask(Task_OLEDDisplay, 100, TASK_PRIORITY_LOW, "OLED_Task");
-    TaskScheduler_AddTask(Task_TrackControl, 30, TASK_PRIORITY_HIGH, "Track_Task");
     // TaskScheduler_AddTask(Task_SystemMonitor, 1000, TASK_PRIORITY_NORMAL, "Monitor_Task");
     /* 输出任务信息 */
     // printf("Task Scheduler Initialized with %d tasks\r\n", TaskScheduler_GetTaskCount());

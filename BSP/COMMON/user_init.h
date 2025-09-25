@@ -14,7 +14,6 @@
 
 #include "main.h"
 
-
 void User_Init(void);
 
 #endif
