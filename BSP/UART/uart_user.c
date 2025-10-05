@@ -19,8 +19,10 @@ void Uart_DataProcess(void)
 
     // 收到正确格式数据包时的解析
     if (command_length) {
-
-
+        printf("Received Command: ");
+        for (uint8_t i = 0; i < command_length; i++) {
+            printf("0x%02X ", g_uart_command_buffer[i]);
+        }
     }
 }
 

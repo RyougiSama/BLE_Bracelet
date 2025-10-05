@@ -19,6 +19,7 @@
 
 #include <stdio.h>
 #include "key.h"
+#include "uart_user.h"
 
 /* 任务函数实现 */
 #if 0
@@ -90,7 +91,7 @@ void AppTasks_Init(void)
     TaskScheduler_Init();
     /* 添加任务到调度器 */
     /* 参数：任务函数, 执行周期(ms), 优先级, 任务名称 */
-    // TaskScheduler_AddTask(Task_UartProcess, 10, TASK_PRIORITY_HIGH, "UART_Task");
+    TaskScheduler_AddTask(Uart_DataProcess, 10, TASK_PRIORITY_HIGH, "UART_Task");
     TaskScheduler_AddTask(Key_Proc, 20, TASK_PRIORITY_NORMAL, "Key_Task");
     // TaskScheduler_AddTask(Task_OLEDDisplay, 100, TASK_PRIORITY_LOW, "OLED_Task");
     // TaskScheduler_AddTask(Task_SystemMonitor, 1000, TASK_PRIORITY_NORMAL, "Monitor_Task");
