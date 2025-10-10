@@ -82,8 +82,8 @@ void MX_RTC_Init(void)
 
   /** Initialize RTC and set the Time and Date
   */
-  sTime.Hours = 0x16;
-  sTime.Minutes = 0x34;
+  sTime.Hours = 0x21;
+  sTime.Minutes = 0x10;
   sTime.Seconds = 0x0;
 
   if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)

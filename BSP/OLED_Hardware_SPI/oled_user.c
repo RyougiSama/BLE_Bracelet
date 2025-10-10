@@ -1,9 +1,9 @@
 #include "oled_user.h"
 
 #include <stdio.h>
-
 #include "oled_hardware_spi.h"
 #include "rtc.h"
+#include "mpu6050.h"
 
 OLED_MainInterface g_curr_main_interface = OLED_STANDBY;
 RTC_DateTypeDef g_rtc_date;
@@ -27,6 +27,11 @@ static void OLED_STANDBY_Display(void)
     snprintf(time_str, sizeof(time_str), "Time:%02d:%02d:%02d", g_rtc_time.Hours,
              g_rtc_time.Minutes, g_rtc_time.Seconds);
     OLED_ShowString(0, 4, (uint8_t *)time_str, 16);
+    // 显示当前温度
+    char temp_str[16] = {0};
+    MPU6050_Read_All();
+    snprintf(temp_str, sizeof(temp_str), "Temp:%.2f C", g_temp);
+    OLED_ShowString(0, 6, (uint8_t *)temp_str, 16);
 }
 
 static void OLED_TEST_Display(void)

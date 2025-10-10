@@ -4,8 +4,8 @@
 #include "app_tasks.h"
 #include "usart.h"
 #include "uart_user.h"
-
 #include "oled_hardware_spi.h"
+#include "mpu6050.h"
 
 /**
  * @brief 用户自定义初始化函数
@@ -19,6 +19,10 @@ void User_Init(void)
     // OLED 初始化
     OLED_Init();
     OLED_Clear();
+    // MPU6050 初始化
+    if (MPU6050_Init() != HAL_OK) {
+        OLED_ShowString(0, 6, (uint8_t *)"MPU6050 ERR!", 16);
+    }
     // 初始化应用任务
     AppTasks_Init();
 }
