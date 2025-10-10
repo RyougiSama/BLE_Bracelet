@@ -20,35 +20,7 @@
 #include <stdio.h>
 #include "key.h"
 #include "uart_user.h"
-
-/* 任务函数实现 */
-#if 0
-/**
- * @brief 舵机控制任务
- * 
- */
-static void Task_ServoCtrl(void)
-{
-    // 1. 获取目标角度 target_angle
-    // 2. 获取当前角度 current_angle
-    // 3. PID 控制计算
-    PID_SetTarget(&g_servo_position_pid, target_angle);
-    float servo_output = PID_Compute(&g_servo_position_pid, current_angle);
-    // 4. 将 PID 输出应用到舵机
-    Servo_SetAngle_DirY((int16_t)servo_output);
-}
-#endif
-
-#if 0
-/**
- * @brief OLED显示任务
- *
- */
-static void Task_OLEDDisplay(void)
-{
-    OLED_Display();
-}
-#endif
+#include "oled_user.h"
 
 #if 0
 /**
@@ -58,7 +30,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim->Instance == TIM6) {
         // 每10ms执行一次
-        Uart_DataProcess();
+        Task_BLE_DataReceiveProc();
     }
 }
 
@@ -91,9 +63,9 @@ void AppTasks_Init(void)
     TaskScheduler_Init();
     /* 添加任务到调度器 */
     /* 参数：任务函数, 执行周期(ms), 优先级, 任务名称 */
-    TaskScheduler_AddTask(Uart_DataProcess, 10, TASK_PRIORITY_HIGH, "UART_Task");
+    TaskScheduler_AddTask(Task_BLE_DataReceiveProc, 10, TASK_PRIORITY_HIGH, "BLE_Receive_Task");
     TaskScheduler_AddTask(Key_Proc, 20, TASK_PRIORITY_NORMAL, "Key_Task");
-    // TaskScheduler_AddTask(Task_OLEDDisplay, 100, TASK_PRIORITY_LOW, "OLED_Task");
+    TaskScheduler_AddTask(Task_OLED_Upate, 100, TASK_PRIORITY_LOW, "OLED_Task");
     // TaskScheduler_AddTask(Task_SystemMonitor, 1000, TASK_PRIORITY_NORMAL, "Monitor_Task");
     /* 输出任务信息 */
     // printf("Task Scheduler Initialized with %d tasks\r\n", TaskScheduler_GetTaskCount());

@@ -13,7 +13,7 @@ uint8_t g_uart_command_buffer[UART_USER_BUFFER_SIZE];  // UART command buffer
  * @brief 处理 UART 接收到的数据，该函数应在任务调度器中调用
  *
  */
-void Uart_DataProcess(void)
+void Task_BLE_DataReceiveProc(void)
 {
     uint8_t command_length = Command_GetCommand(g_uart_command_buffer);
 

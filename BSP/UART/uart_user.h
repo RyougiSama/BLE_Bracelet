@@ -3,7 +3,7 @@
  * @author Shiki
  * @brief UART user buffer, to start, use HAL_UARTEx_ReceiveToIdle_DMA in user_init.c
  *        to receive data into this buffer.
- *        Remember to call Uart_DataProcess() in the task scheduler to process the received data.
+ *        Remember to call Task_BLE_DataReceiveProc() in the task scheduler to process the received data.
  * @version 0.1
  * @date 2025-07-13
  * 
@@ -24,7 +24,7 @@ extern DMA_HandleTypeDef hdma_usart2_rx;
 extern uint8_t g_uart_command_buffer[UART_USER_BUFFER_SIZE]; // UART command buffer
 
 // Call this function in the task scheduler to process received UART data
-void Uart_DataProcess(void);
+void Task_BLE_DataReceiveProc(void);
 
 
 #endif
