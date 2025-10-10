@@ -21,7 +21,28 @@
 #include "rtc.h"
 
 /* USER CODE BEGIN 0 */
+void read_bkup(RTC_HandleTypeDef* hrtc)
+{
+  if (HAL_RTCEx_BKUPRead(hrtc, RTC_BKP_DR1) == 0) {
+      // 判断寄存器是否存储日期，相当于标志位
+      return;
+  } else {
+      // 依次将年月日从备份寄存器读出
+      hrtc->DateToUpdate.Year = HAL_RTCEx_BKUPRead(hrtc, RTC_BKP_DR2);
+      hrtc->DateToUpdate.Month = HAL_RTCEx_BKUPRead(hrtc, RTC_BKP_DR3);
+      hrtc->DateToUpdate.Date = HAL_RTCEx_BKUPRead(hrtc, RTC_BKP_DR4);
+  }
+}
 
+void write_bkup(RTC_HandleTypeDef* hrtc)
+{
+  HAL_RTCEx_BKUPWrite(hrtc, RTC_BKP_DR1, 1);  // 每次写入置标志位
+  // 依次写入年月日到备份寄存器
+  HAL_RTCEx_BKUPWrite(hrtc, RTC_BKP_DR2, hrtc->DateToUpdate.Year);
+  HAL_RTCEx_BKUPWrite(hrtc, RTC_BKP_DR3, hrtc->DateToUpdate.Month);
+  HAL_RTCEx_BKUPWrite(hrtc, RTC_BKP_DR4, hrtc->DateToUpdate.Date);
+
+}
 /* USER CODE END 0 */
 
 RTC_HandleTypeDef hrtc;
@@ -31,14 +52,18 @@ void MX_RTC_Init(void)
 {
 
   /* USER CODE BEGIN RTC_Init 0 */
-
   /* USER CODE END RTC_Init 0 */
 
   RTC_TimeTypeDef sTime = {0};
   RTC_DateTypeDef DateToUpdate = {0};
 
   /* USER CODE BEGIN RTC_Init 1 */
-
+  hrtc.Instance = RTC;
+  hrtc.Init.AsynchPrediv = RTC_AUTO_1_SECOND;
+  hrtc.Init.OutPut = RTC_OUTPUTSOURCE_NONE;
+  if (HAL_RTCEx_BKUPRead(&hrtc, RTC_BKP_DR1) == 1) {
+      return;
+  }
   /* USER CODE END RTC_Init 1 */
 
   /** Initialize RTC Only
@@ -57,8 +82,8 @@ void MX_RTC_Init(void)
 
   /** Initialize RTC and set the Time and Date
   */
-  sTime.Hours = 0x15;
-  sTime.Minutes = 0x30;
+  sTime.Hours = 0x16;
+  sTime.Minutes = 0x34;
   sTime.Seconds = 0x0;
 
   if (HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BCD) != HAL_OK)
@@ -75,7 +100,6 @@ void MX_RTC_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN RTC_Init 2 */
-
   /* USER CODE END RTC_Init 2 */
 
 }
