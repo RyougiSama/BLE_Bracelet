@@ -26,7 +26,5 @@ extern uint8_t g_uart_command_buffer[UART_USER_BUFFER_SIZE]; // UART command buf
 // Call this function in the task scheduler to process received UART data
 void Uart_DataProcess(void);
 
-// Function to enable or disable median filter
-void Uart_SetFilterEnabled(bool enable);
 
 #endif
