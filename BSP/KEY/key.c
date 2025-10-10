@@ -1,24 +1,27 @@
 #include "key.h"
 
 #include <stdio.h>
+#include "oled_user.h"
 
 // GPIO端口和引脚宏定义兼容
-// #define ROW1_PORT ROW1_GPIO_Port
-// #define ROW1_PIN ROW1_Pin
-// #define ROW2_PORT ROW2_GPIO_Port
-// #define ROW2_PIN ROW2_Pin
-// #define ROW3_PORT ROW3_GPIO_Port
-// #define ROW3_PIN ROW3_Pin
-// #define ROW4_PORT ROW4_GPIO_Port
-// #define ROW4_PIN ROW4_Pin
-// #define COL1_PORT COL1_GPIO_Port
-// #define COL1_PIN COL1_Pin
-// #define COL2_PORT COL2_GPIO_Port
-// #define COL2_PIN COL2_Pin
-// #define COL3_PORT COL3_GPIO_Port
-// #define COL3_PIN COL3_Pin
-// #define COL4_PORT COL4_GPIO_Port
-// #define COL4_PIN COL4_Pin
+#if 0
+    #define ROW1_PORT ROW1_GPIO_Port
+    #define ROW1_PIN ROW1_Pin
+    #define ROW2_PORT ROW2_GPIO_Port
+    #define ROW2_PIN ROW2_Pin
+    #define ROW3_PORT ROW3_GPIO_Port
+    #define ROW3_PIN ROW3_Pin
+    #define ROW4_PORT ROW4_GPIO_Port
+    #define ROW4_PIN ROW4_Pin
+    #define COL1_PORT COL1_GPIO_Port
+    #define COL1_PIN COL1_Pin
+    #define COL2_PORT COL2_GPIO_Port
+    #define COL2_PIN COL2_Pin
+    #define COL3_PORT COL3_GPIO_Port
+    #define COL3_PIN COL3_Pin
+    #define COL4_PORT COL4_GPIO_Port
+    #define COL4_PIN COL4_Pin
+#endif
 
 /* 按键消抖实例 */
 static KeyDebounce_t key_debounce;
@@ -225,7 +228,7 @@ KeyValue_t Matrix_Key_Scan(void)
 }
 #endif
 
-void Key_Proc(void)
+void Task_KeyProc(void)
 {
     static KeyValue_t key_val_old = KEY_NONE;
 
@@ -239,6 +242,7 @@ void Key_Proc(void)
             printf("KEY_1 Pressed!\n");
         } else if (key_val == USER_KEY) {
             printf("USER_KEY Pressed!\n");
+            OLED_MoveToNextInterface();
         }
     }
     /* 当按键释放时清除旧key_val_old */

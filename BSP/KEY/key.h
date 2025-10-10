@@ -62,6 +62,6 @@ typedef struct {
 
 /* 函数声明 */
 
-void Key_Proc(void);    // 按键处理函数
+void Task_KeyProc(void);    // 按键处理函数
 
 #endif

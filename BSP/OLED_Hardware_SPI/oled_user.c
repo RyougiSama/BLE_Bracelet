@@ -29,13 +29,27 @@ static void OLED_STANDBY_Display(void)
     OLED_ShowString(0, 4, (uint8_t *)time_str, 16);
 }
 
+static void OLED_TEST_Display(void)
+{
+    OLED_ShowString(0, 0, (uint8_t *)"OLED TEST MODE", 16);
+}
+
 void Task_OLED_Upate(void)
 {
     switch (g_curr_main_interface) {
         case OLED_STANDBY:
             OLED_STANDBY_Display();
             break;
+        case OLED_TEST:
+            OLED_TEST_Display();
+            break;
         default:
             break;
     }
+}
+
+void OLED_MoveToNextInterface(void)
+{
+    g_curr_main_interface = (OLED_MainInterface)(((uint8_t)g_curr_main_interface + 1) % 2);
+    OLED_Clear();
 }
