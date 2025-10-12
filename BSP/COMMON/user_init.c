@@ -6,6 +6,7 @@
 #include "uart_user.h"
 #include "oled_hardware_spi.h"
 #include "mpu6050.h"
+#include "blood_measure_task.h"
 
 /**
  * @brief 用户自定义初始化函数
@@ -23,6 +24,8 @@ void User_Init(void)
     if (MPU6050_Init() != HAL_OK) {
         OLED_ShowString(0, 6, (uint8_t *)"MPU6050 ERR!", 16);
     }
+    // MAX30102 初始化
+    BloodMeasure_Init();
     // 初始化应用任务
     AppTasks_Init();
 }

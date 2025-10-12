@@ -97,6 +97,7 @@ int main(void)
   MX_SPI1_Init();
   MX_RTC_Init();
   MX_I2C2_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   User_Init();
   /* USER CODE END 2 */
