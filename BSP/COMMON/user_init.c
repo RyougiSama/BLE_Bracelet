@@ -1,12 +1,13 @@
 #include "user_init.h"
 
 #include <stdio.h>
+
 #include "app_tasks.h"
-#include "usart.h"
-#include "uart_user.h"
-#include "oled_hardware_spi.h"
+#include "max30102_example.h"
 #include "mpu6050.h"
-#include "blood_measure_task.h"
+#include "oled_hardware_spi.h"
+#include "uart_user.h"
+#include "usart.h"
 
 /**
  * @brief 用户自定义初始化函数
@@ -22,10 +23,14 @@ void User_Init(void)
     OLED_Clear();
     // MPU6050 初始化
     if (MPU6050_Init() != HAL_OK) {
-        OLED_ShowString(0, 6, (uint8_t *)"MPU6050 ERR!", 16);
+        OLED_ShowString(0, 0, (uint8_t *)"MPU6050 ERR!", 16);
+        while (true) {}
     }
     // MAX30102 初始化
-    BloodMeasure_Init();
+    if (!MAX30102_System_Init()) {
+        OLED_ShowString(0, 0, (uint8_t *)"MAX30102 ERR!", 16);
+        while (true) {}
+    }
     // 初始化应用任务
     AppTasks_Init();
 }

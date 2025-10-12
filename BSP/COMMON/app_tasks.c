@@ -67,7 +67,7 @@ void AppTasks_Init(void)
     TaskScheduler_AddTask(Task_BLE_DataReceiveProc, 10, TASK_PRIORITY_HIGH, "BLE_Receive_Task");
     TaskScheduler_AddTask(Task_KeyProc, 20, TASK_PRIORITY_NORMAL, "Key_Task");
     TaskScheduler_AddTask(Task_OLED_Update, 100, TASK_PRIORITY_NORMAL, "OLED_Task");
-    TaskScheduler_AddTask(Task_BloodMeasure, 1000, TASK_PRIORITY_LOW, "Blood_Measure_Task");
+    TaskScheduler_AddTask(Task_BloodMeasure, 20, TASK_PRIORITY_LOW, "Blood_Measure_Task");
     // TaskScheduler_AddTask(Task_SystemMonitor, 1000, TASK_PRIORITY_NORMAL, "Monitor_Task");
     /* 输出任务信息 */
     // printf("Task Scheduler Initialized with %d tasks\r\n", TaskScheduler_GetTaskCount());
