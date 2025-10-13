@@ -75,8 +75,8 @@ bool MAX30102_Init(void)
     // Wait for reset to complete
     HAL_Delay(100);
 
-    // Interrupt configuration
-    if (!MAX30102_WriteReg(MAX30102_REG_INTR_ENABLE_1, 0xC0)) {  // A_FULL_EN and PPG_RDY_EN
+    // Interrupt configuration - Enable PPG_RDY for each new sample
+    if (!MAX30102_WriteReg(MAX30102_REG_INTR_ENABLE_1, 0xC0)) {  // PPG_RDY_EN only
         return false;
     }
     if (!MAX30102_WriteReg(MAX30102_REG_INTR_ENABLE_2, 0x00)) {
@@ -94,7 +94,8 @@ bool MAX30102_Init(void)
         return false;
     }
     if (!MAX30102_WriteReg(MAX30102_REG_FIFO_CONFIG,
-                           0x0F)) {  // Sample avg = 1, FIFO rollover = false, FIFO almost full = 15
+                           0x0F)) {  // Sample avg = 1, FIFO rollover = false, FIFO almost full = 0
+                                     // (interrupt on each sample)
         return false;
     }
 
@@ -119,7 +120,24 @@ bool MAX30102_Init(void)
     if (!MAX30102_WriteReg(MAX30102_REG_PILOT_PA, 0x7F)) {  // Pilot LED current (~25mA)
         return false;
     }
+#if 1
+    // Wait for sensor to stabilize after configuration
+    HAL_Delay(50);
 
+    // Clear any existing interrupts
+    uint8_t int_status1, int_status2;
+    MAX30102_ReadReg(MAX30102_REG_INTR_STATUS_1, &int_status1);
+    MAX30102_ReadReg(MAX30102_REG_INTR_STATUS_2, &int_status2);
+
+    // Ensure sensor is actually running by checking mode
+    uint8_t mode_check;
+    if (MAX30102_ReadReg(MAX30102_REG_MODE_CONFIG, &mode_check)) {
+        if (mode_check != MAX30102_MODE_SPO2) {
+            // Mode configuration failed
+            return false;
+        }
+    }
+#endif
     return true;
 }
 

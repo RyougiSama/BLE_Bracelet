@@ -50,7 +50,7 @@ static void OLED_TEST_Display(void)
     // 测试MAX30102
     Blood_Data_Update();
     char blood_str[20] = {0};
-    snprintf(blood_str, sizeof(blood_str), "HR:%d SpO2:%d%%", g_heart_rate, g_spo2);
+    snprintf(blood_str, sizeof(blood_str), "HR:%ld SpO2:%ld", g_heart_rate, g_spo2);
     OLED_ShowString(0, 5, (uint8_t *)blood_str, 8);
 }
 

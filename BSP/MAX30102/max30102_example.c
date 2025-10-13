@@ -57,6 +57,7 @@ static void MAX30102_PrintResults(uint32_t red_val, uint32_t ir_val);
 static void MAX30102_ShiftBuffer(void);
 static void MAX30102_Task_CollectInitialData(void);
 static void MAX30102_Task_ProcessMonitoring(void);
+static void MAX30102_CheckSensorStatus(void);
 
 /* Public API Functions ------------------------------------------------------*/
 
@@ -102,6 +103,26 @@ bool MAX30102_System_Init(void)
  */
 void MAX30102_Task_Handler(void)
 {
+#if 0
+    // Check for new data by polling if interrupt is not working
+    static uint32_t last_poll_time = 0;
+    uint32_t current_time = HAL_GetTick();
+
+    // Poll every 10ms if no interrupt received
+    if (current_time - last_poll_time >= 10) {
+        last_poll_time = current_time;
+
+        // Check FIFO status manually
+        uint8_t write_ptr, read_ptr;
+        if (MAX30102_ReadReg(0x04, &write_ptr) &&
+            MAX30102_ReadReg(0x06, &read_ptr)) {  // FIFO_WR_PTR and FIFO_RD_PTR
+            if (write_ptr != read_ptr) {
+                // New data available, simulate interrupt
+                data_ready_flag = true;
+            }
+        }
+    }
+#endif
     switch (system_state) {
         case MAX30102_STATE_UNINITIALIZED:
             // System not initialized, do nothing
@@ -109,10 +130,12 @@ void MAX30102_Task_Handler(void)
 
         case MAX30102_STATE_COLLECTING_INITIAL_DATA:
             MAX30102_Task_CollectInitialData();
+            // MAX30102_CheckSensorStatus();
             break;
 
         case MAX30102_STATE_MONITORING:
             MAX30102_Task_ProcessMonitoring();
+            // MAX30102_CheckSensorStatus();
             break;
 
         case MAX30102_STATE_ERROR:
@@ -339,6 +362,36 @@ static void MAX30102_PrintResults(uint32_t red_val, uint32_t ir_val)
 {
     (void)red_val;
     (void)ir_val;
+}
+
+/**
+ * @brief Check MAX30102 sensor status for debugging
+ */
+static void MAX30102_CheckSensorStatus(void)
+{
+    static uint32_t last_check_time = 0;
+    uint32_t current_time = HAL_GetTick();
+
+    // Check status every 1 second
+    if (current_time - last_check_time >= 1000) {
+        last_check_time = current_time;
+
+        uint8_t int_status1, int_status2;
+        uint8_t fifo_wr_ptr, fifo_rd_ptr;
+
+        // Read interrupt status
+        if (MAX30102_ReadReg(MAX30102_REG_INTR_STATUS_1, &int_status1) &&
+            MAX30102_ReadReg(MAX30102_REG_INTR_STATUS_2, &int_status2) &&
+            MAX30102_ReadReg(0x04, &fifo_wr_ptr) &&  // FIFO_WR_PTR
+            MAX30102_ReadReg(0x06, &fifo_rd_ptr)) {  // FIFO_RD_PTR
+
+            // If we have data in FIFO but no interrupt flag, there's an interrupt issue
+            if (fifo_wr_ptr != fifo_rd_ptr && !data_ready_flag) {
+                // Force set data ready flag - this indicates interrupt hardware issue
+                data_ready_flag = true;
+            }
+        }
+    }
 }
 
 /* End of file ---------------------------------------------------------------*/
