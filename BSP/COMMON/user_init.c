@@ -27,12 +27,7 @@ void User_Init(void)
         while (true) {}
     }
     // MAX30102 初始化
-    // if (!MAX30102_System_Init()) {
-    //     OLED_ShowString(0, 0, (uint8_t *)"MAX30102 ERR!", 16);
-    //     while (true) {}
-    // }
-    max30102_init();
-    max30102_test();
+    MAX30102_System_Init();
     // 初始化应用任务
     AppTasks_Init();
 }
