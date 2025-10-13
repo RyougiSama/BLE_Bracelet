@@ -2,12 +2,12 @@
 
 #include <stdio.h>
 
+#include "usart.h"
+#include "uart_user.h"
 #include "app_tasks.h"
-#include "max30102_example.h"
 #include "mpu6050.h"
 #include "oled_hardware_spi.h"
-#include "uart_user.h"
-#include "usart.h"
+#include "max30102_user.h"
 
 /**
  * @brief 用户自定义初始化函数
@@ -27,10 +27,12 @@ void User_Init(void)
         while (true) {}
     }
     // MAX30102 初始化
-    if (!MAX30102_System_Init()) {
-        OLED_ShowString(0, 0, (uint8_t *)"MAX30102 ERR!", 16);
-        while (true) {}
-    }
+    // if (!MAX30102_System_Init()) {
+    //     OLED_ShowString(0, 0, (uint8_t *)"MAX30102 ERR!", 16);
+    //     while (true) {}
+    // }
+    max30102_init();
+    max30102_test();
     // 初始化应用任务
     AppTasks_Init();
 }

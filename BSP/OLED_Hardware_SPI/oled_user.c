@@ -5,7 +5,6 @@
 #include "rtc.h"
 #include "mpu6050.h"
 #include "oled_hardware_spi.h"
-#include "blood_measure_task.h"
 
 OLED_MainInterface g_curr_main_interface = OLED_STANDBY;
 RTC_DateTypeDef g_rtc_date;
@@ -48,10 +47,12 @@ static void OLED_TEST_Display(void)
     snprintf(gyro_str, sizeof(gyro_str), "G:%.2f %.2f %.2f", g_gx, g_gy, g_gz);
     OLED_ShowString(0, 3, (uint8_t *)gyro_str, 8);
     // 测试MAX30102
+#if 0
     Blood_Data_Update();
     char blood_str[20] = {0};
     snprintf(blood_str, sizeof(blood_str), "HR:%ld SpO2:%ld", g_heart_rate, g_spo2);
     OLED_ShowString(0, 5, (uint8_t *)blood_str, 8);
+#endif
 }
 
 void Task_OLED_Update(void)
