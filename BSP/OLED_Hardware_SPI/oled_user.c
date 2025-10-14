@@ -6,6 +6,7 @@
 #include "mpu6050.h"
 #include "oled_hardware_spi.h"
 #include "max30102_user.h"
+#include "step_count.h"
 
 OLED_MainInterface g_curr_main_interface = OLED_STANDBY;
 RTC_DateTypeDef g_rtc_date;
@@ -47,6 +48,9 @@ static void OLED_TEST_Display(void)
     char gyro_str[20] = {0};
     snprintf(gyro_str, sizeof(gyro_str), "G:%.2f %.2f %.2f", g_gx, g_gy, g_gz);
     OLED_ShowString(0, 3, (uint8_t *)gyro_str, 8);
+    char step_str[20] = {0};
+    snprintf(step_str, sizeof(step_str), "Step:%d", g_step);
+    OLED_ShowString(0, 4, (uint8_t *)step_str, 8);
     // 测试MAX30102
     char blood_str[20] = {0};
     if (MAX30102_IsVaid()) {
