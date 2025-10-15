@@ -19,8 +19,7 @@ int8_t g_hr_valid;                  // indicator to show if the heart rate calcu
  * @brief MAX30102系统初始化
  *
  */
-void MAX30102_System_Init(void)
-{
+void MAX30102_System_Init(void) {
     max30102_init();  // max30102初始化
     uint32_t un_min, un_max;
     int i;
@@ -51,8 +50,8 @@ void MAX30102_System_Init(void)
                                            &g_spo2_valid, &g_heart_rate, &g_hr_valid);
 }
 
-void Task_BloodMeasure(void)
-{
+#if 0
+void Task_BloodMeasure(void) {
     uint32_t un_min, un_max;
     int i;
     uint8_t temp[6];
@@ -87,9 +86,75 @@ void Task_BloodMeasure(void)
         ir_buffer, BUFFER_LENTH, red_buffer, &g_sp02, &g_spo2_valid, &g_heart_rate,
         &g_hr_valid);  // 传入500个心率和血氧数据计算传感器检测结论，反馈心率和血氧测试结果
 }
+#endif
 
-bool MAX30102_IsVaid(void)
-{
+// 可调参数：每次函数最多读取多少样本（根据实时性/开销调整）
+#ifndef SAMPLE_BATCH
+#define SAMPLE_BATCH 10
+#endif
+
+void Task_BloodMeasure(void) {
+    uint8_t temp[6];
+    uint16_t i;
+    // 静态持久化变量（保留在函数间）
+    static uint16_t write_index = 0;  // 下一个写入位置（0..BUFFER_LENTH-1）
+    static uint16_t filled = 0;       // 已填充的样本数量（<= BUFFER_LENTH）
+    static uint16_t new_count = 0;    // 自上次分析以来新增样本数
+
+    // 临时线性化数组（静态以节省栈）
+    static uint32_t tmp_ir[BUFFER_LENTH];
+    static uint32_t tmp_red[BUFFER_LENTH];
+
+    // 每次最多读取 SAMPLE_BATCH 条数据；若没有数据则立即返回（非阻塞）
+    for (i = 0; i < SAMPLE_BATCH; i++) {
+        while (HAL_GPIO_ReadPin(MAX30102_INT_GPIO_Port, MAX30102_INT_Pin) == SET)
+            ;
+        // 读取一帧 FIFO 数据（6 字节）
+        max30102_FIFO_ReadBytes(REG_FIFO_DATA, temp);
+
+        // 合并为 18-bit 数据（和你原来合并方式一致）
+        uint32_t red_val =
+            ((uint32_t)(temp[0] & 0x03) << 16) | ((uint32_t)temp[1] << 8) | (uint32_t)temp[2];
+        uint32_t ir_val =
+            ((uint32_t)(temp[3] & 0x03) << 16) | ((uint32_t)temp[4] << 8) | (uint32_t)temp[5];
+
+        // 写入环形缓冲区
+        red_buffer[write_index] = red_val;
+        ir_buffer[write_index] = ir_val;
+
+        // 更新索引与计数
+        write_index++;
+        if (write_index >= BUFFER_LENTH)
+            write_index = 0;
+
+        if (filled < BUFFER_LENTH)
+            filled++;
+
+        new_count++;
+    }
+
+    // 仅在缓冲区已满并且累计新样本 >= 100 时才做一次完整分析
+    if ((filled >= BUFFER_LENTH) && (new_count >= 100)) {
+        // 将环形缓冲线性化为 tmp_*：按时间顺序 oldest -> newest
+        // oldest 索引就是 write_index（因为 write_index 指向下一个将被覆盖的位置）
+        for (uint16_t k = 0; k < BUFFER_LENTH; k++) {
+            uint16_t idx = write_index + k;
+            if (idx >= BUFFER_LENTH)
+                idx -= BUFFER_LENTH;
+            tmp_ir[k] = ir_buffer[idx];
+            tmp_red[k] = red_buffer[idx];
+        }
+
+        // 调用分析函数（使用线性化数组）
+        maxim_heart_rate_and_oxygen_saturation(tmp_ir, BUFFER_LENTH, tmp_red, &g_sp02,
+                                               &g_spo2_valid, &g_heart_rate, &g_hr_valid);
+
+        // 重置新增样本计数（等待下一个 100 个新样本）
+        new_count = 0;
+    }
+}
+
+bool MAX30102_IsVaid(void) {
     if ((1 == g_hr_valid) && (1 == g_spo2_valid) && (g_heart_rate < 120) && (g_sp02 < 101)) {
         // printf("HeartRate=%i, BloodOxyg=%i\r\n", g_heart_rate, g_sp02);
         // char buffer[20];
@@ -100,8 +165,7 @@ bool MAX30102_IsVaid(void)
     return false;
 }
 
-void max30102_test(void)
-{
+void max30102_test(void) {
     uint32_t un_min, un_max;
     int i;
     uint8_t temp[6];

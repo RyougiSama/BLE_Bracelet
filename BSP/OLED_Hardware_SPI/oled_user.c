@@ -2,18 +2,17 @@
 
 #include <stdio.h>
 
-#include "rtc.h"
+#include "max30102_user.h"
 #include "mpu6050.h"
 #include "oled_hardware_spi.h"
-#include "max30102_user.h"
+#include "rtc.h"
 #include "step_count.h"
 
 OLED_MainInterface g_curr_main_interface = OLED_STANDBY;
 RTC_DateTypeDef g_rtc_date;
 RTC_TimeTypeDef g_rtc_time;
 
-static void OLED_STANDBY_Display(void)
-{
+static void OLED_STANDBY_Display(void) {
     OLED_ShowString(0, 0, (uint8_t *)"< BLE Bracelet >", 16);
     // 读取时间和日期
     read_bkup(&hrtc);
@@ -37,8 +36,7 @@ static void OLED_STANDBY_Display(void)
     OLED_ShowString(0, 6, (uint8_t *)temp_str, 16);
 }
 
-static void OLED_TEST_Display(void)
-{
+static void OLED_TEST_Display(void) {
     OLED_ShowString(0, 0, (uint8_t *)"OLED TEST MODE", 16);
     // 测试MPU6050
     MPU6050_Read_All();
@@ -61,8 +59,7 @@ static void OLED_TEST_Display(void)
     OLED_ShowString(0, 5, (uint8_t *)blood_str, 8);
 }
 
-void Task_OLED_Update(void)
-{
+void Task_OLED_Update(void) {
     switch (g_curr_main_interface) {
         case OLED_STANDBY:
             OLED_STANDBY_Display();
@@ -75,8 +72,7 @@ void Task_OLED_Update(void)
     }
 }
 
-void OLED_MoveToNextInterface(void)
-{
+void OLED_MoveToNextInterface(void) {
     g_curr_main_interface =
         (OLED_MainInterface)(((uint8_t)g_curr_main_interface + 1) % OLED_MAIN_INTERFACE_COUNT);
     OLED_Clear();

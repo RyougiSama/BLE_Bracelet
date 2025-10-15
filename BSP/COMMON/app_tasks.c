@@ -18,10 +18,11 @@
 #include "app_tasks.h"
 
 #include <stdio.h>
+
 #include "key.h"
-#include "uart_user.h"
-#include "oled_user.h"
 #include "max30102_user.h"
+#include "oled_user.h"
+#include "uart_user.h"
 
 #if 0
 /**
@@ -58,8 +59,7 @@ static void Task_SystemMonitor(void)
 /**
  * @brief 应用任务初始化
  */
-void AppTasks_Init(void)
-{
+void AppTasks_Init(void) {
     /* 初始化任务调度器 */
     TaskScheduler_Init();
     /* 添加任务到调度器 */
@@ -67,8 +67,8 @@ void AppTasks_Init(void)
     TaskScheduler_AddTask(Task_BLE_DataReceiveProc, 10, TASK_PRIORITY_HIGH, "BLE_Receive_Task");
     TaskScheduler_AddTask(Task_KeyProc, 20, TASK_PRIORITY_NORMAL, "Key_Task");
     TaskScheduler_AddTask(Task_OLED_Update, 100, TASK_PRIORITY_NORMAL, "OLED_Task");
-    TaskScheduler_AddTask(Task_BloodMeasure, 1000, TASK_PRIORITY_LOW, "Blood_Measure_Task");
-    TaskScheduler_SuspendTask("Blood_Measure_Task"); // 初始时暂停血氧测量任务
+    TaskScheduler_AddTask(Task_BloodMeasure, 20, TASK_PRIORITY_NORMAL, "Blood_Measure_Task");
+    // TaskScheduler_SuspendTask("Blood_Measu0re_Task"); // 初始时暂停血氧测量任务
     // TaskScheduler_AddTask(Task_SystemMonitor, 1000, TASK_PRIORITY_NORMAL, "Monitor_Task");
     /* 输出任务信息 */
     // printf("Task Scheduler Initialized with %d tasks\r\n", TaskScheduler_GetTaskCount());
