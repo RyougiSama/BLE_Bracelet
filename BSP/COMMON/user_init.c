@@ -3,6 +3,7 @@
 #include <stdio.h>
 
 #include "app_tasks.h"
+#include "atgm336h.h"
 #include "max30102_user.h"
 #include "mpu6050.h"
 #include "oled_hardware_spi.h"
@@ -21,9 +22,11 @@ void User_Init(void) {
     // OLED 初始化
     OLED_Init();
     OLED_Clear();
+    // ATGM336H 初始化
+    atgm336h_init();
     // MPU6050 初始化
     if (MPU6050_Init() != HAL_OK) {
-        OLED_ShowString(0, 0, (uint8_t *)"MPU6050 ERR!", 16);
+        OLED_ShowString(0, 0, (uint8_t*)"MPU6050 ERR!", 16);
         while (true) {
         }
     }
