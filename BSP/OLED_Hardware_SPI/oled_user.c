@@ -6,9 +6,9 @@
 #include "max30102_user.h"
 #include "mpu6050.h"
 #include "oled_hardware_spi.h"
-#include "rtc.h"
 #include "step_count.h"
 #include "task_scheduler.h"
+#include "user_data.h"
 
 OLED_MainInterface g_curr_main_interface = OLED_STANDBY;
 RTC_DateTypeDef g_rtc_date;
@@ -43,7 +43,8 @@ static void OLED_MAX30102_Display(void) {
     // 测试MAX30102
     char blood_str[20] = {0};
     if (MAX30102_IsVaid()) {
-        snprintf(blood_str, sizeof(blood_str), "HR:%3d SpO2:%3d", g_heart_rate, g_sp02);
+        snprintf(blood_str, sizeof(blood_str), "HR:%3d SpO2:%3d", g_heart_rate, g_spo2);
+        UserData_UpdateHealth();
     } else {
         snprintf(blood_str, sizeof(blood_str), "HR:--- SpO2:---");
     }
@@ -90,7 +91,7 @@ static void OLED_TEST_Display(void) {
     // 测试MAX30102
     char blood_str[20] = {0};
     if (MAX30102_IsVaid()) {
-        snprintf(blood_str, sizeof(blood_str), "HR:%3d SpO2:%3d", g_heart_rate, g_sp02);
+        snprintf(blood_str, sizeof(blood_str), "HR:%3d SpO2:%3d", g_heart_rate, g_spo2);
     } else {
         snprintf(blood_str, sizeof(blood_str), "HR:--- SpO2:---");
     }

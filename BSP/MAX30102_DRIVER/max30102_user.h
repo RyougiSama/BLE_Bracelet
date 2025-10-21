@@ -4,10 +4,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-extern int32_t g_sp02;                     // SPO2 value
+extern int32_t g_spo2;                     // SPO2 value
 extern int8_t g_spo2_valid;                // indicator to show if the SP02 calculation is valid
 extern int32_t g_heart_rate;               // heart rate value
-extern int8_t g_hr_valid;                  // indicator to 
+extern int8_t g_hr_valid;                  // indicator to show if the heart rate calculation is valid
 
 void MAX30102_System_Init(void);
 void Task_BloodMeasure(void);

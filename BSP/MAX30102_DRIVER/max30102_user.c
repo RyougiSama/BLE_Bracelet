@@ -10,7 +10,7 @@
 
 uint32_t ir_buffer[BUFFER_LENTH];   // IR LED sensor data   红外数据，用于计算血氧
 uint32_t red_buffer[BUFFER_LENTH];  // Red LED sensor data  红光数据，用于计算心率曲线以及计算心率
-int32_t g_sp02;                     // SPO2 value
+int32_t g_spo2;                     // SPO2 value
 int8_t g_spo2_valid;                // indicator to show if the SP02 calculation is valid
 int32_t g_heart_rate;               // heart rate value
 int8_t g_hr_valid;                  // indicator to show if the heart rate calculation is valid
@@ -46,7 +46,7 @@ void MAX30102_System_Init(void) {
     }
 
     // 计算前500个样本后的心率和SpO2（样本的前5秒）
-    maxim_heart_rate_and_oxygen_saturation(ir_buffer, BUFFER_LENTH, red_buffer, &g_sp02,
+    maxim_heart_rate_and_oxygen_saturation(ir_buffer, BUFFER_LENTH, red_buffer, &g_spo2,
                                            &g_spo2_valid, &g_heart_rate, &g_hr_valid);
 }
 
@@ -83,7 +83,7 @@ void Task_BloodMeasure(void) {
         // 数据读取完成，继续处理
     }
     maxim_heart_rate_and_oxygen_saturation(
-        ir_buffer, BUFFER_LENTH, red_buffer, &g_sp02, &g_spo2_valid, &g_heart_rate,
+        ir_buffer, BUFFER_LENTH, red_buffer, &g_spo2, &g_spo2_valid, &g_heart_rate,
         &g_hr_valid);  // 传入500个心率和血氧数据计算传感器检测结论，反馈心率和血氧测试结果
 }
 #endif
@@ -146,7 +146,7 @@ void Task_BloodMeasure(void) {
         }
 
         // 调用分析函数（使用线性化数组）
-        maxim_heart_rate_and_oxygen_saturation(tmp_ir, BUFFER_LENTH, tmp_red, &g_sp02,
+        maxim_heart_rate_and_oxygen_saturation(tmp_ir, BUFFER_LENTH, tmp_red, &g_spo2,
                                                &g_spo2_valid, &g_heart_rate, &g_hr_valid);
 
         // 重置新增样本计数（等待下一个 100 个新样本）
@@ -155,10 +155,10 @@ void Task_BloodMeasure(void) {
 }
 
 bool MAX30102_IsVaid(void) {
-    if ((1 == g_hr_valid) && (1 == g_spo2_valid) && (g_heart_rate < 120) && (g_sp02 < 101)) {
-        // printf("HeartRate=%i, BloodOxyg=%i\r\n", g_heart_rate, g_sp02);
+    if ((1 == g_hr_valid) && (1 == g_spo2_valid) && (g_heart_rate < 120) && (g_spo2 < 101)) {
+        // printf("HeartRate=%i, BloodOxyg=%i\r\n", g_heart_rate, g_spo2);
         // char buffer[20];
-        // snprintf(buffer, sizeof(buffer), "HR=%3d, SpO2=%3d", g_heart_rate, g_sp02);
+        // snprintf(buffer, sizeof(buffer), "HR=%3d, SpO2=%3d", g_heart_rate, g_spo2);
         // OLED_ShowString(0, 0, (uint8_t *)buffer, 16);
         return true;
     }
@@ -191,7 +191,7 @@ void max30102_test(void) {
     }
 
     // 计算前500个样本后的心率和SpO2（样本的前5秒）
-    maxim_heart_rate_and_oxygen_saturation(ir_buffer, BUFFER_LENTH, red_buffer, &g_sp02,
+    maxim_heart_rate_and_oxygen_saturation(ir_buffer, BUFFER_LENTH, red_buffer, &g_spo2,
                                            &g_spo2_valid, &g_heart_rate, &g_hr_valid);
 
     while (1) {
@@ -223,13 +223,13 @@ void max30102_test(void) {
             // 数据读取完成，继续处理
         }
         maxim_heart_rate_and_oxygen_saturation(
-            ir_buffer, BUFFER_LENTH, red_buffer, &g_sp02, &g_spo2_valid, &g_heart_rate,
+            ir_buffer, BUFFER_LENTH, red_buffer, &g_spo2, &g_spo2_valid, &g_heart_rate,
             &g_hr_valid);  // 传入500个心率和血氧数据计算传感器检测结论，反馈心率和血氧测试结果
 
-        if ((1 == g_hr_valid) && (1 == g_spo2_valid) && (g_heart_rate < 120) && (g_sp02 < 101)) {
-            // printf("HeartRate=%i, BloodOxyg=%i\r\n", g_heart_rate, g_sp02);
+        if ((1 == g_hr_valid) && (1 == g_spo2_valid) && (g_heart_rate < 120) && (g_spo2 < 101)) {
+            // printf("HeartRate=%i, BloodOxyg=%i\r\n", g_heart_rate, g_spo2);
             char buffer[20];
-            snprintf(buffer, sizeof(buffer), "HR=%3d, SpO2=%3d", g_heart_rate, g_sp02);
+            snprintf(buffer, sizeof(buffer), "HR=%3d, SpO2=%3d", g_heart_rate, g_spo2);
             OLED_ShowString(0, 0, (uint8_t *)buffer, 16);
         }
     }
