@@ -1,6 +1,7 @@
 #include "oled_user.h"
 
 #include <stdio.h>
+#include <string.h>
 
 #include "atgm336h.h"
 #include "max30102_user.h"
@@ -91,6 +92,7 @@ static void OLED_StepGPS_Display(void) {
 }
 
 static void OLED_TEST_Display(void) {
+#if 0
     OLED_ShowString(0, 0, (uint8_t*)"OLED TEST MODE", 16);
     // 测试MPU6050
     MPU6050_Read_All();
@@ -111,6 +113,52 @@ static void OLED_TEST_Display(void) {
         snprintf(blood_str, sizeof(blood_str), "HR:--- SpO2:---");
     }
     OLED_ShowString(0, 5, (uint8_t*)blood_str, 8);
+#endif
+    // 显示GPS原始数据 (GPS_Buffer)
+    OLED_ShowString(0, 0, (uint8_t*)"GPS Raw Data", 8);
+
+    if (Save_Data.GPS_Buffer[0] != '\0') {  // 检查GPS_Buffer是否有数据
+        char display_line[OLED_STR_BUF_SIZE] = {0};
+        size_t gps_len = strlen(Save_Data.GPS_Buffer);
+        size_t char_index = 0;
+
+        // 显示数据长度信息
+        snprintf(display_line, OLED_STR_BUF_SIZE, "Len:%zu bytes", gps_len);
+        OLED_ShowString(0, 1, (uint8_t*)display_line, 8);
+
+        // 将GPS_Buffer按16个字符一行分割显示，从第2行开始，最多显示6行数据
+        for (int line = 0; line < 6 && char_index < gps_len; line++) {
+            memset(display_line, 0, OLED_STR_BUF_SIZE);
+
+            // 计算本行要复制的字符数
+            int chars_to_copy = (gps_len - char_index > OLED_MAX_STR_LEN) ? OLED_MAX_STR_LEN
+                                                                          : (gps_len - char_index);
+
+            // 复制字符到显示缓冲区
+            strncpy(display_line, &Save_Data.GPS_Buffer[char_index], chars_to_copy);
+
+            // 将不可打印字符替换为'.'以便显示
+            for (int i = 0; i < chars_to_copy; i++) {
+                if (display_line[i] < 32 || display_line[i] > 126) {
+                    display_line[i] = '.';
+                }
+            }
+
+            // 显示当前行 (第2-7行)
+            OLED_ShowString(0, line + 2, (uint8_t*)display_line, 8);
+
+            char_index += chars_to_copy;
+        }
+
+        // 如果还有更多数据未显示，在最后显示的行末尾显示省略号
+        if (char_index < gps_len) {
+            OLED_ShowString(13, 7, (uint8_t*)"...", 8);
+        }
+    } else {
+        // 如果没有GPS数据，显示提示信息
+        OLED_ShowString(0, 4, (uint8_t*)"No GPS Data", 16);
+        OLED_ShowString(0, 6, (uint8_t*)"Available", 16);
+    }
 }
 
 void Task_OLED_Update(void) {
