@@ -10,6 +10,10 @@
 #include "task_scheduler.h"
 #include "user_data.h"
 
+// OLED显示字符串长度限制
+#define OLED_MAX_STR_LEN 16   // 最大显示字符数
+#define OLED_STR_BUF_SIZE 17  // 缓冲区大小 (包含'\0')
+
 OLED_MainInterface g_curr_main_interface = OLED_STANDBY;
 RTC_DateTypeDef g_rtc_date;
 RTC_TimeTypeDef g_rtc_time;
@@ -51,26 +55,37 @@ static void OLED_MAX30102_Display(void) {
     OLED_ShowString(0, 2, (uint8_t*)blood_str, 16);
 }
 
+static void OLED_ClearNlines(uint8_t start_line, uint8_t num_lines) {
+    for (uint8_t i = 0; i < num_lines; i++) {
+        OLED_ShowString(0, start_line + i, (uint8_t*)"                ", 8);
+    }
+}
+
 static void OLED_StepGPS_Display(void) {
     OLED_ShowString(0, 0, (uint8_t*)"Steps & GPS Data", 16);
     // 显示当前步数
     char step_str[20] = {0};
-    snprintf(step_str, sizeof(step_str), "Steps:%d", g_step);
+    snprintf(step_str, sizeof(step_str), "Steps:%5d", g_step);
     OLED_ShowString(0, 2, (uint8_t*)step_str, 16);
-    // 显示GPS信息
-    char gps_utc_str[32] = {0};
-    char gps_pos_str[32] = {0};
+    // 显示GPS信息 (限制字符串长度为OLED_MAX_STR_LEN)
+    char gps_utc_str[OLED_STR_BUF_SIZE] = {0};
+    char gps_pos_str[OLED_STR_BUF_SIZE] = {0};
     if (Save_Data.isUsefull) {
-        snprintf(gps_utc_str, sizeof(gps_utc_str), "GPS UTC:%s", Save_Data.UTCTime);
+        OLED_ClearNlines(6, 2);
+        // 精确控制显示格式，确保不超过16个字符
+        snprintf(gps_utc_str, OLED_STR_BUF_SIZE, "UTC:%.11s ",
+                 Save_Data.UTCTime);  // "UTC:" + 11字符 = 15字符
         OLED_ShowString(0, 4, (uint8_t*)gps_utc_str, 16);
-        snprintf(gps_pos_str, sizeof(gps_pos_str), "Lat:%s %s", Save_Data.latitude, Save_Data.N_S);
+        snprintf(gps_pos_str, OLED_STR_BUF_SIZE, "Lat:%.10s%c", Save_Data.latitude,
+                 Save_Data.N_S[0]);  // "Lat:" + 10字符 + 1方向 = 15字符
         OLED_ShowString(0, 6, (uint8_t*)gps_pos_str, 8);
-        snprintf(gps_pos_str, sizeof(gps_pos_str), "Lon:%s %s", Save_Data.longitude, Save_Data.E_W);
+        snprintf(gps_pos_str, OLED_STR_BUF_SIZE, "Lon:%.10s%c", Save_Data.longitude,
+                 Save_Data.E_W[0]);  // "Lon:" + 10字符 + 1方向 = 15字符
         OLED_ShowString(0, 7, (uint8_t*)gps_pos_str, 8);
     } else {
-        snprintf(gps_utc_str, sizeof(gps_utc_str), "GPS Parse Error!");
+        snprintf(gps_utc_str, OLED_STR_BUF_SIZE, "GPS Parse Error!");  // 正好16个字符
         OLED_ShowString(0, 4, (uint8_t*)gps_utc_str, 16);
-        snprintf(gps_pos_str, sizeof(gps_pos_str), "Outside Please!");
+        snprintf(gps_pos_str, OLED_STR_BUF_SIZE, "Outside Please! ");  // 正好16个字符
         OLED_ShowString(0, 6, (uint8_t*)gps_pos_str, 16);
     }
 }

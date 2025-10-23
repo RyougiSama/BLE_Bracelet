@@ -10,6 +10,8 @@ typedef struct {
     int32_t spo2;
 } UserHealthData;
 
+extern UserHealthData g_newest_user_hr_data;
+
 void UserData_UpdateHealth(void);
 
 #endif

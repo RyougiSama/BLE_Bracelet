@@ -1,34 +1,35 @@
 #include "key.h"
 
 #include <stdio.h>
+
 #include "oled_user.h"
+#include "step_count.h"
 
 // GPIO端口和引脚宏定义兼容
 #if 0
-    #define ROW1_PORT ROW1_GPIO_Port
-    #define ROW1_PIN ROW1_Pin
-    #define ROW2_PORT ROW2_GPIO_Port
-    #define ROW2_PIN ROW2_Pin
-    #define ROW3_PORT ROW3_GPIO_Port
-    #define ROW3_PIN ROW3_Pin
-    #define ROW4_PORT ROW4_GPIO_Port
-    #define ROW4_PIN ROW4_Pin
-    #define COL1_PORT COL1_GPIO_Port
-    #define COL1_PIN COL1_Pin
-    #define COL2_PORT COL2_GPIO_Port
-    #define COL2_PIN COL2_Pin
-    #define COL3_PORT COL3_GPIO_Port
-    #define COL3_PIN COL3_Pin
-    #define COL4_PORT COL4_GPIO_Port
-    #define COL4_PIN COL4_Pin
+#define ROW1_PORT ROW1_GPIO_Port
+#define ROW1_PIN ROW1_Pin
+#define ROW2_PORT ROW2_GPIO_Port
+#define ROW2_PIN ROW2_Pin
+#define ROW3_PORT ROW3_GPIO_Port
+#define ROW3_PIN ROW3_Pin
+#define ROW4_PORT ROW4_GPIO_Port
+#define ROW4_PIN ROW4_Pin
+#define COL1_PORT COL1_GPIO_Port
+#define COL1_PIN COL1_Pin
+#define COL2_PORT COL2_GPIO_Port
+#define COL2_PIN COL2_Pin
+#define COL3_PORT COL3_GPIO_Port
+#define COL3_PIN COL3_Pin
+#define COL4_PORT COL4_GPIO_Port
+#define COL4_PIN COL4_Pin
 #endif
 
 /* 按键消抖实例 */
 static KeyDebounce_t key_debounce;
 
 #if 1
-static KeyValue_t Key_GetNum(void)
-{
+static KeyValue_t Key_GetNum(void) {
     KeyValue_t key_num = KEY_NONE;
 
     if (HAL_GPIO_ReadPin(KEY0_GPIO_Port, KEY0_Pin) == GPIO_PIN_RESET) {
@@ -50,8 +51,7 @@ static KeyValue_t Key_GetNum(void)
  *
  * @return KeyValue_t 消抖后的按键值，KEY_NONE表示无按键，其他值表示有按键按下
  */
-KeyValue_t Key_GetDebounced(void)
-{
+KeyValue_t Key_GetDebounced(void) {
     uint32_t current_tick = HAL_GetTick();
     // KeyValue_t raw_key = Matrix_Key_Scan();
     KeyValue_t raw_key = Key_GetNum();  // 选择板载按键扫描
@@ -228,8 +228,7 @@ KeyValue_t Matrix_Key_Scan(void)
 }
 #endif
 
-void Task_KeyProc(void)
-{
+void Task_KeyProc(void) {
     static KeyValue_t key_val_old = KEY_NONE;
 
     /* 获取经过消抖的按键值 */
@@ -237,11 +236,14 @@ void Task_KeyProc(void)
     /* 只有在按键值变化且不为KEY_NONE时才处理 */
     if (key_val != KEY_NONE && key_val != key_val_old) {
         if (key_val == KEY_0) {
-            printf("KEY_0 Pressed!\n");
+            // printf("KEY_0 Pressed!\n");
+            if (g_curr_main_interface == OLED_STEP_GPS) {
+                g_step = 0;  // 重置步数计数
+            }
         } else if (key_val == KEY_1) {
-            printf("KEY_1 Pressed!\n");
+            // printf("KEY_1 Pressed!\n");
         } else if (key_val == USER_KEY) {
-            printf("USER_KEY Pressed!\n");
+            // printf("USER_KEY Pressed!\n");
             OLED_MoveToNextInterface();
         }
     }
