@@ -26,7 +26,7 @@ void atgm336h_init(void) {
 }
 
 void atgm336h_UART_RxCpltCallback(UART_HandleTypeDef* huart) {
-    if (huart->Instance == USART1) {
+    if (huart->Instance == USART3) {
         //		printf("%c", uart_A_RX_Buff);
         if (uart_A_RX_Buff == '$') {
             point1 = 0;

@@ -77,11 +77,11 @@ static void OLED_StepGPS_Display(void) {
         snprintf(gps_utc_str, OLED_STR_BUF_SIZE, "UTC:%.11s ",
                  Save_Data.UTCTime);  // "UTC:" + 11字符 = 15字符
         OLED_ShowString(0, 4, (uint8_t*)gps_utc_str, 16);
-        snprintf(gps_pos_str, OLED_STR_BUF_SIZE, "Lat:%.10s%c", Save_Data.latitude,
-                 Save_Data.N_S[0]);  // "Lat:" + 10字符 + 1方向 = 15字符
+        snprintf(gps_pos_str, OLED_STR_BUF_SIZE, "Lat:%.4f%c", g_LatAndLongData.latitude,
+                 g_LatAndLongData.N_S);  // "Lat:" + 10字符 + 1方向 = 15字符
         OLED_ShowString(0, 6, (uint8_t*)gps_pos_str, 8);
-        snprintf(gps_pos_str, OLED_STR_BUF_SIZE, "Lon:%.10s%c", Save_Data.longitude,
-                 Save_Data.E_W[0]);  // "Lon:" + 10字符 + 1方向 = 15字符
+        snprintf(gps_pos_str, OLED_STR_BUF_SIZE, "Lon:%.4f%c", g_LatAndLongData.longitude,
+                 g_LatAndLongData.E_W);  // "Lon:" + 10字符 + 1方向 = 15字符
         OLED_ShowString(0, 7, (uint8_t*)gps_pos_str, 8);
     } else {
         snprintf(gps_utc_str, OLED_STR_BUF_SIZE, "GPS Parse Error!");  // 正好16个字符
@@ -92,6 +92,16 @@ static void OLED_StepGPS_Display(void) {
 }
 
 static void OLED_TEST_Display(void) {
+    char latitude_str[17] = {0};
+    snprintf(latitude_str, sizeof(latitude_str), "Lat: %.4f %c", g_LatAndLongData.latitude,
+             g_LatAndLongData.N_S);
+    OLED_ShowString(0, 0, (uint8_t*)latitude_str, 16);
+
+    char longitude_str[17] = {0};
+    snprintf(longitude_str, sizeof(longitude_str), "Lon: %.4f %c", g_LatAndLongData.longitude,
+             g_LatAndLongData.E_W);
+    OLED_ShowString(0, 2, (uint8_t*)longitude_str, 16);
+
 #if 0
     OLED_ShowString(0, 0, (uint8_t*)"OLED TEST MODE", 16);
     // 测试MPU6050
@@ -114,6 +124,8 @@ static void OLED_TEST_Display(void) {
     }
     OLED_ShowString(0, 5, (uint8_t*)blood_str, 8);
 #endif
+
+#if 0
     // 显示GPS原始数据 (GPS_Buffer)
     OLED_ShowString(0, 0, (uint8_t*)"GPS Raw Data", 8);
 
@@ -159,6 +171,7 @@ static void OLED_TEST_Display(void) {
         OLED_ShowString(0, 4, (uint8_t*)"No GPS Data", 16);
         OLED_ShowString(0, 6, (uint8_t*)"Available", 16);
     }
+#endif
 }
 
 void Task_OLED_Update(void) {
